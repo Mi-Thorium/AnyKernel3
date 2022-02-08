@@ -21,6 +21,7 @@ device.name8=ugg
 device.name9=ugglite
 device.name10=ulysse
 device.name11=prada
+device.name12=tiare
 supported.versions=REPLACE_ANDROID_VERSION
 supported.patchlevels=
 '; } # end properties
