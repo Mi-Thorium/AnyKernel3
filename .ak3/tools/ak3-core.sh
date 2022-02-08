@@ -632,6 +632,10 @@ patch_fstab() {
 
 # patch_cmdline <cmdline entry name> <replacement string>
 patch_cmdline() {
+  if ! grep -E "^cmdline=" $split_img/header|grep "$1" > /dev/null; then
+    /sbin/sed -i "s|cmdline=|cmdline=${2} |g" $split_img/header
+  fi
+  return 0;
   local cmdfile cmdtmp match;
   if [ -f "$split_img/cmdline.txt" ]; then
     cmdfile=$split_img/cmdline.txt;
