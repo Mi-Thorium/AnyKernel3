@@ -57,5 +57,10 @@ dump_boot;
 # Enable USB ConfigFS
 patch_cmdline androidboot.usbconfigfs androidboot.usbconfigfs=true
 
+# Disable PRLMK kill_heaviest_gid on tiare
+if ! [ -z "$(cat /proc/cmdline|grep S88508)" ]; then
+	patch_cmdline prlmk.kill_heaviest_gid prlmk.kill_heaviest_gid=0
+fi
+
 write_boot;
 ## end boot install
