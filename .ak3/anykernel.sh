@@ -15,8 +15,10 @@ supported.versions=REPLACE_ANDROID_VERSION
 supported.patchlevels=
 '; } # end properties
 
+PARTITION=REPLACE_PARTITION
+
 # shell variables
-block=/dev/block/bootdevice/by-name/boot;
+block=/dev/block/bootdevice/by-name/$PARTITION;
 is_slot_device=0;
 ramdisk_compression=auto;
 patch_vbmeta_flag=0;
@@ -25,6 +27,12 @@ patch_vbmeta_flag=0;
 # import patching functions/variables - see for reference
 . tools/ak3-core.sh;
 
+# Backup the partition
+if dd if=${block} of=/sdcard/previous-${PARTITION}.img; then
+  ui_print ""
+  ui_print "Your previous ${PARTITION} image has been saved to: /sdcard/previous-${PARTITION}.img"
+  ui_print ""
+fi
 
 ## AnyKernel file attributes
 # set permissions/ownership for included ramdisk files
