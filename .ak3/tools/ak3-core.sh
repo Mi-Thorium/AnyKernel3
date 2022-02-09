@@ -291,7 +291,26 @@ flash_boot() {
       abort "Fatal Error: Unable to determine device from devicetree!"
       ;;
   esac
-  cat Image.gz dtbs/$DTB_FILE > Image.gz-dtb
+  if [ "$PARTITION" == "boot" ]; then
+    if [ -e "/vendor/etc/vintf/manifest/vendor.qti.hardware.vibrator.service.xml" ]; then
+      DTB_DIR=dtbs-newvib
+      ui_print "Detected QTI Vibrator AIDL, Use new vibrator drivers."
+    else
+      DTB_DIR=dtbs-oldvib
+      ui_print "Not detected QTI Vibrator AIDL, Use old vibrator drivers."
+    fi
+    ui_print "****************************"
+    ui_print " Note: Wrong vibrator driver"
+    ui_print "  might prevent the ROM to"
+    ui_print "  to boot."
+    ui_print ""
+    ui_print "  !Just flash the backup!"
+    ui_print "  ! if it does not boot !"
+    ui_print "****************************"
+  else
+    DTB_DIR=dtbs-oldvib
+  fi
+  cat Image.gz $DTB_DIR/$DTB_FILE > Image.gz-dtb
   kernel=$home/Image.gz-dtb
   if [ "$kernel" ]; then
     if [ -f "$bin/mkmtkhdr" -a -f "$split_img/boot.img-base" ]; then
