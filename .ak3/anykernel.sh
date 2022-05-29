@@ -50,6 +50,12 @@ fi
 set_perm_recursive 0 0 755 644 $ramdisk/*;
 set_perm_recursive 0 0 750 750 $ramdisk/init* $ramdisk/sbin;
 
+# If lk2nd is installed, Read boot from 1MB offset
+if [ "$(dd if=${block} skip=64 bs=1 count=5 2>/dev/null)" == "lk2nd" ]; then
+  ui_print "Detected lk2nd installation! Skipping the first 1MB."
+  customdd="bs=1M skip=1"
+  lk2nd=1
+fi
 
 ## AnyKernel boot install
 dump_boot;
@@ -60,6 +66,18 @@ patch_cmdline androidboot.usbconfigfs androidboot.usbconfigfs=true
 # Disable PRLMK kill_heaviest_gid on tiare
 if ! [ -z "$(cat /proc/cmdline|grep S88508)" ]; then
 	patch_cmdline prlmk.kill_heaviest_gid prlmk.kill_heaviest_gid=0
+fi
+
+# If lk2nd is installed, Write boot to 1MB offset
+if [ "$lk2nd" == "1" ]; then
+  customdd="bs=1M seek=1"
+  # GNU GREP: lk2nd_end=$(expr $(grep --byte-offset --only-matching --text SEANDROIDENFORCE ${block}|cut -d ':' -f 1) + 16)
+  # AK3 grep: lk2nd_end=$(expr $(grep -o -n SEANDROIDENFORCE ${block}|cut -d ':' -f 1) + 16)
+  # Recovery grep:
+  lk2nd_end=$(expr $(/bin/grep -o -b -a SEANDROIDENFORCE ${block}|cut -d ':' -f 1) + 16)
+  lk2nd_gaps=$(expr 1048576 - ${lk2nd_end})
+  ui_print "Filling ${lk2nd_gaps} bytes of gap from lk2nd data (${lk2nd_end}) till 1MB with zeroes."
+  dd if=/dev/zero of=$block bs=1 count=$lk2nd_gaps seek=$lk2nd_end
 fi
 
 write_boot;
