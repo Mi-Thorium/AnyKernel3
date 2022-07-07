@@ -71,13 +71,9 @@ fi
 # If lk2nd is installed, Write boot to 1MB offset
 if [ "$lk2nd" == "1" ]; then
   customdd="bs=1M seek=1"
-  # GNU GREP: lk2nd_end=$(expr $(grep --byte-offset --only-matching --text SEANDROIDENFORCE ${block}|cut -d ':' -f 1) + 16)
-  # AK3 grep: lk2nd_end=$(expr $(grep -o -n SEANDROIDENFORCE ${block}|cut -d ':' -f 1) + 16)
-  # Recovery grep:
-  lk2nd_end=$(expr $(/bin/grep -o -b -a SEANDROIDENFORCE ${block}|cut -d ':' -f 1) + 16)
-  lk2nd_gaps=$(expr 1048576 - ${lk2nd_end})
-  ui_print "Filling ${lk2nd_gaps} bytes of gap from lk2nd data (${lk2nd_end}) till 1MB with zeroes."
-  dd if=/dev/zero of=$block bs=1 count=$lk2nd_gaps seek=$lk2nd_end
+  toybox blkdiscard -o 1048576 $block
+else
+  toybox blkdiscard $block
 fi
 
 write_boot;

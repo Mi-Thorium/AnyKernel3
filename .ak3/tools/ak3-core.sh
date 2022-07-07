@@ -456,7 +456,7 @@ flash_boot() {
     $bin/flash_erase $block 0 0;
     $bin/nandwrite -p $block boot-new.img;
   elif [ "$customdd" ]; then
-    dd if=/dev/zero of=$block $customdd 2>/dev/null;
+#    dd if=/dev/zero of=$block $customdd 2>/dev/null;
     dd if=boot-new.img of=$block $customdd;
   else
     cat boot-new.img /dev/zero > $block 2>/dev/null || true;
